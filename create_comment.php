@@ -34,7 +34,6 @@ if(isset($postData['formComment'])){
 
         header('Location: read_article.php?article_id=' . $idArticle);
         exit;
-        die('ok');
 
         
     }

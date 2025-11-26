@@ -12,6 +12,18 @@ $stmt->execute([
 ]);
 $article=$stmt->fetch();
 
+if(isset($getData['article_id'])){
+$sql=$pdo->prepare('SELECT c.comment, u.username, a.title
+FROM comments c
+INNER JOIN users u ON c.user_id=u.user_id
+INNER JOIN articles a ON c.article_id=a.article_id
+WHERE a.article_id=:id');
+$sql->execute([
+  'id'=>$getData['article_id'],
+]);
+$comment=$sql->fetchAll();
+}
+
 ?>
 
 <!doctype html>
@@ -33,7 +45,28 @@ $article=$stmt->fetch();
     <p>Ecrit par <span style="font-weight:bold"><?php echo $article['author']; ?></span></p>
     <i><?php echo $article['created_at']; ?></i><br><br>
 
-    <button class="btn btn-primary" ><a href="create_comment.php?article_id=<?php echo $article['article_id']?>" style="color:white; text-decoration:none">Ajouter un commentaire</a></button>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Utilisateur</th>
+          <th scope="col">Commentaire</th>
+          <th scope="col">Article</th>
+        </tr>
+      </thead>
+      <tbody>
+          <?php foreach($comment as $c) : ?>
+          <tr>
+          <th scope="row">1</th>
+          <td><?php echo $c['username'] ?></td>
+          <td><?php echo $c['comment'] ?></td>
+          <td><?php echo $c['title'] ?></td>
+          <?php endforeach; ?>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary" ><a href="create_comment.php?article_id=<?php echo $getData['article_id']?>" style="color:white; text-decoration:none">Ajouter un commentaire</a></button>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   </body>
 </html>
