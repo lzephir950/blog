@@ -1,11 +1,14 @@
 <?php 
 
+session_start();
+
 require_once(__DIR__ . '/config/mysql.php');
 
 $postData=$_POST;
 
 if(isset($postData['formRegister'])){
     $valid=true;
+        
 
     $firstName=htmlentities($postData['first_name']);
     $name=htmlentities($postData['name']);
@@ -13,8 +16,10 @@ if(isset($postData['formRegister'])){
     $username=htmlentities($postData['username']);
     $password=htmlentities(trim($postData['password']));
     $confPass=htmlentities(trim($postData['confpass']));
+    $fullName=$firstName . ' ' . $name;
 
-    $tableau=[$firstName,$name,$email,$username,$password,$confPass];
+
+    $tableau=[$firstName,$name,$email,$username,$password,$confPass,$fullName];
 
     if(empty($firstName)){
         $valid=false;
@@ -39,55 +44,69 @@ if(isset($postData['formRegister'])){
         }
     }
 
-        if(empty($username)){
-            $_SESSION['ERROR_USERNAME']="*Le champ est vide, veuillez le remplir";
+    if(empty($username)){
+        $_SESSION['ERROR_USERNAME']="*Le champ est vide, veuillez le remplir";
+    }else{
+        $stmt=$pdo->prepare('SELECT username FROM users WHERE username=?');
+        $stmt->execute([$username]);
+        $verif=$stmt->fetch();
+
+        if($verif){
+            $valid=false;
+            $_SESSION['ERROR_VERIF']="*Le pseudo est déjà utilisé";
+        }
+
+    }
+
+        if(isset($postData['password'])){
+        if(empty($password)){
+            $valid=false;
+            $_SESSION['ERROR_PASSWORD']="*Le champ est vide, veuillez le remplir";
         }else{
-            $stmt=$pdo->prepare('SELECT username FROM users WHERE username=?');
-            $stmt->execute([$username]);
-            $verif=$stmt->fetch();
+            $nbMinLong=8;
+            $nbMaxLong=20;
+            $nbLongPassword=strlen($password);
 
-            if($verif){
+            if($nbLongPassword < $nbMinLong){
                 $valid=false;
-                $_SESSION['ERROR_VERIF']="*Le pseudo est déjà utilisé";
+                $_SESSION['ERROR_MIN']="*Mot de passe trop court";
             }
-
+            
+            if($nbLongPassword > $nbMaxLong){
+                $valid=false;
+                $_SESSION['ERROR_MAX']="*Mot de passe trop long";
+            }
         }
     }
 
-    if(empty($password)){
-        $valid=false;
-        $_SESSION['ERROR_PASSWORD']="*Le champ est vide, veuillez le remplir";
-    }else{
-        $nbMinLong=8;
-        $nbMaxLong=20;
-        $nbLongPassword=strlen($password);
+    if(isset($postData['confpass'])){
+        if(empty($confPass)){
+            $valid=false;
+            $_SESSION['ERROR_CONFPASS']="*Le champ est vide, veuillez le remplir";
+        }else{
 
-        if($nbLongPassword < $nbMinLong){
-            $valid=false;
-            $_SESSION['ERROR_MIN']="*Mot de passe trop court";
-        }
-        
-        if($nbLongPassword > $nbMaxLong){
-            $valid=false;
-            $_SESSION['ERROR_MAX']="*Mot de passe trop long";
+            if($confPass != $password){
+                $valid=false;
+                $_SESSION['ERROR_VERIFPASS']="Le mot de passe ne correspond pas";
+            }
         }
     }
 
-    if(empty($confPass)){
-        $valid=false;
-        $_SESSION['ERROR_CONFPASS']="*Le champ est vide, veuillez le remplir";
-    }else{
-
-        if($confPass != $password){
-            $valid=false;
-            $_SESSION['ERROR_VERIFPASS']="Le mot de passe ne correspond pas";
-        }
-    }
-    
-    if($valid){
-        $stmt=$pdo->prepare('INSERT INTO users(first_name, name, email, username, password, confpass) VALUES (?,?,?,?,?,?)');
+        if($valid){
+        $stmt=$pdo->prepare('INSERT INTO users(first_name, name, email, username, password, confpass,full_name) VALUES (?,?,?,?,?,?,?)');
         $stmt->execute($tableau);
+
+        
+        $_SESSION['NEW_USER']=$fullName;
+        header('Location: validation_user.php');
+        exit;
     }
+
+    }
+
+
+    
+
 
 
 ?>
@@ -103,6 +122,7 @@ if(isset($postData['formRegister'])){
   <body>
     <div class="card w-75 mb-3" style="margin:auto; margin-top:110px; width:450px!important">
         <div class="card-body">
+            <img src="./img/logo blog.png" class="card-img-top" alt="...">
             <form action="register.php" method="post">
                 <div class="mb-3">
                     <?php if(isset($_SESSION['ERROR_FIRSTNAME'])):?>
@@ -163,7 +183,7 @@ if(isset($postData['formRegister'])){
                 <div class="mb-3">
                     <?php if(isset($_SESSION['ERROR_CONFPASS'])):?>
                         <div style="color:red; font-size:12px"><?php echo $_SESSION['ERROR_CONFPASS']; ?></div>
-                        <?php unset($_SESSION['ERROR_VERIF']);?>
+                        <?php unset($_SESSION['ERROR_CONFPASS']);?>
                     <?php endif; ?>
                     <?php if(isset($_SESSION['ERROR_VERIFPASS'])): ?>
                         <div style="color:red; font-size:12px"><?php echo $_SESSION['ERROR_VERIFPASS'];?></div>

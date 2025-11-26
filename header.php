@@ -19,7 +19,10 @@
                 <a class="nav-link active" aria-current="page" href="home.php">Accueil</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="create_blog.php">Ecrire un blog</a>
+                <a class="nav-link" href="create_article.php">Ecrire un article</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="create_category.php">Catégorie</a>
                 </li>
                 <li class="nav-item">
                 <a class="nav-link" href="logout.php">Se déconnecter</a>

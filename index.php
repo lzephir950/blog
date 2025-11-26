@@ -13,17 +13,18 @@ require_once(__DIR__ . '/config/models/users.php');
 
 if(isset($postData['username']) && isset($postData['password'])){
     if(empty($postData['username'])){
-        $_SESSION['ERROR_USERNAME']="champ vide";
+        $_SESSION['ERROR_USERNAME']="*Veuillez remplir le champ";
     }
 
     if(empty($postData['password'])){
-        $_SESSION['ERROR_PASSWORD']="champ vide";
+        $_SESSION['ERROR_PASSWORD']="*Veuillez remplir le champ";
     }
 
 if(!empty($postData['username']) && !empty($postData['password'])){
         if($user){
             if($postData['username'] === $user['username'] && $postData['password'] == $user['password']){
                 $_SESSION['LOGGED_USER']=$user['username'];
+                $_SESSION['ID_USER']=$user['user_id'];
 
                 header('Location: home.php');
                 exit;
@@ -37,14 +38,9 @@ if(!empty($postData['username']) && !empty($postData['password'])){
 
 }
 
+
+
 ?>
-
-
-        
-
-
-
-
 
 <!doctype html>
 <html lang="en">
@@ -53,21 +49,22 @@ if(!empty($postData['username']) && !empty($postData['password'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrâap demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet">
   </head>
   <body>
 
-    <div class="card mb-3" style="width: 18rem;">
+
+    <div class="card mb-3" style="width: 20rem; margin:auto;margin-top:200px">
         <div class="card-body">
+            <img src="./img/logo blog.png" class="card-img-top" alt="...">
             <form action="index.php" method="post">
                 <div class="mb-3">
-
-                        <?php if(isset($_SESSION['MESSAGE'])) : ?>
-                            <p><?php echo $_SESSION['MESSAGE']; ?></p>
-                            <?php unset($_SESSION['MESSAGE']);?>
-
+                    <?php if(isset($_SESSION['MESSAGE'])) : ?>
+                        <div style="color:red; font-size:12px"><?php echo $_SESSION['MESSAGE']; ?></div>
+                    <?php unset($_SESSION['MESSAGE']);?>
                     <?php endif; ?>
                     <?php if(isset($_SESSION['ERROR_USERNAME'])) : ?>
-                        <p><?php echo $_SESSION['ERROR_USERNAME'];?></p>
+                        <div style="color:red; font-size:12px"><?php echo $_SESSION['ERROR_USERNAME'];?></div>
                         <?php unset($_SESSION['ERROR_USERNAME']);?>
                     <?php endif; ?>
                     <label for="username" class="form-label">Pseudo</label>
@@ -75,14 +72,16 @@ if(!empty($postData['username']) && !empty($postData['password'])){
                 </div>
                 <div class="mb-3">
                     <?php if(isset($_SESSION['ERROR_PASSWORD'])) : ?>
-                        <p><?php echo $_SESSION['ERROR_PASSWORD'];?></p>
+                        <div style="color:red; font-size:12px"><?php echo $_SESSION['ERROR_PASSWORD'];?></div>
                         <?php unset($_SESSION['ERROR_PASSWORD']);?>
                     <?php endif; ?>
                     <label for="password" class="form-label">Mot de passe</label>
                     <input type="password" class="form-control" id="password" name="password">
                 </div>
-                <button type="submit" class="btn btn-primary">Se connecter</button>
-                <button type="submit" class="btn btn-primary"><a href="register.php" style="color:white; text-decoration:none">S'enregistrer</a></button>
+                <div style="text-align:center;padding-top:10px;padding-bottom:10px">
+                    <button type="submit" class="btn btn-primary">Se connecter</button>
+                    <button type="submit" class="btn btn-primary"><a href="register.php" style="color:white; text-decoration:none">S'enregistrer</a></button>
+                </div>
             </form>
         </div>
     </div>
